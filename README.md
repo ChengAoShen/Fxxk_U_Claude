@@ -1,8 +1,8 @@
 <div align="center">
 
-**中文 | [English](README.en.md)**
-
 # Fxxk_U_claude
+
+**中文 | [English](README.en.md)**
 
 **把 Claude Code 里的配置、技能、命令、记忆和可选对话历史，安全迁移到 Codex / OpenCode / Pi / 其他 coding agent。**
 
@@ -50,7 +50,7 @@
 - 之前对话里做过的决策、计划和排查过程
 - settings / hooks / permissions 里有一些不能自动转换但需要人工确认的行为
 
-**Fxxk_U_claude** 的目标不是“偷偷替你改配置”，而是把这些东西整理成一个可读、可审阅、可迁移的 bundle。
+**Fxxk_U_claude** 可以把这些东西整理成一个可读、可审阅、可迁移的 bundle。
 
 ---
 
@@ -242,17 +242,6 @@ ln -s /path/to/Fxxk_U_claude .opencode/skills/fxxk-u-claude
 # Pi project-local
 mkdir -p .pi/skills
 ln -s /path/to/Fxxk_U_claude .pi/skills/fxxk-u-claude
-```
-
----
-
-## 发布前检查
-
-```bash
-uvx ruff check .
-python3 -m py_compile scripts/*.py src/fxxk_u_claude/*.py
-uvx pytest -q
-uv build --wheel
 ```
 
 ---
