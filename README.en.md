@@ -38,6 +38,8 @@ Supported output targets:
 
 The tool does not modify your Claude Code files and does not write directly into another agent's live config directory. It creates a migration bundle for you to inspect first.
 
+This is not a claim that Claude Code is unusable. The point is portability: model access, subscription policies, quota rules, and product boundaries change quickly, and platforms naturally try to keep users inside their own ecosystem. Your project rules, skills, commands, memory, and past decisions are developer-owned working context; they should be reviewable, backed up, and portable.
+
 ---
 
 ## Using it from different agents
