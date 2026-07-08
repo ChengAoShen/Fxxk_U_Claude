@@ -70,7 +70,33 @@
 
 ---
 
-## 快速开始
+## 给不同 Agent 使用
+
+**推荐方式是把它当通用 CLI 使用**：任何 agent 只要能运行 shell 命令，都可以调用 `uvx --from . fxxk-u-claude-scan` 和 `uvx --from . fxxk-u-claude-migrate`。这比绑定某个 Claude-style skill 机制更通用，也更适合 Codex、OpenCode、Pi 等工具混用。
+
+- **Codex**：让 Codex 阅读本仓库的 [`AGENTS.md`](AGENTS.md)，然后按 README 的 CLI 命令执行。
+- **OpenCode / Pi / Claude Code**：可以直接运行 CLI；如果你希望它们在技能列表里发现这个工具，也可以把本仓库作为兼容性 skill 安装。
+- **其他 agent**：读取 `README.md` 或 `AGENTS.md`，按 CLI 使用即可。
+
+可选的 skill 兼容安装方式：
+
+```bash
+# Claude Code
+mkdir -p ~/.claude/skills
+ln -s /path/to/Fxxk_U_claude ~/.claude/skills/fxxk-u-claude
+
+# OpenCode project-local
+mkdir -p .opencode/skills
+ln -s /path/to/Fxxk_U_claude .opencode/skills/fxxk-u-claude
+
+# Pi project-local
+mkdir -p .pi/skills
+ln -s /path/to/Fxxk_U_claude .pi/skills/fxxk-u-claude
+```
+
+---
+
+## 人工使用（命令行）
 
 推荐用 **uvx** 运行。这样会自动带上 PyYAML，YAML frontmatter 解析更完整；同时仓库仍兼容直接 `python3 scripts/...` 运行，没装依赖也能用内置 fallback。
 
@@ -217,32 +243,6 @@ uvx --from . fxxk-u-claude-scan --scope project --project-root /path/to/project 
 | `MANUAL_REVIEW.md` | 需要人工确认的 settings、hooks、权限、文件名冲突、扫描警告等 |
 
 如果生成了 `MANUAL_REVIEW.md`，请务必先读它，再把迁移包接入目标工具。
-
----
-
-## 给不同 Agent 使用
-
-**推荐方式是把它当通用 CLI 使用**：任何 agent 只要能运行 shell 命令，都可以调用 `uvx --from . fxxk-u-claude-scan` 和 `uvx --from . fxxk-u-claude-migrate`。这比绑定某个 Claude-style skill 机制更通用，也更适合 Codex、OpenCode、Pi 等工具混用。
-
-- **Codex**：让 Codex 阅读本仓库的 [`AGENTS.md`](AGENTS.md)，然后按 README 的 CLI 命令执行。
-- **OpenCode / Pi / Claude Code**：可以直接运行 CLI；如果你希望它们在技能列表里发现这个工具，也可以把本仓库作为兼容性 skill 安装。
-- **其他 agent**：读取 `README.md` 或 `AGENTS.md`，按 CLI 使用即可。
-
-可选的 skill 兼容安装方式：
-
-```bash
-# Claude Code
-mkdir -p ~/.claude/skills
-ln -s /path/to/Fxxk_U_claude ~/.claude/skills/fxxk-u-claude
-
-# OpenCode project-local
-mkdir -p .opencode/skills
-ln -s /path/to/Fxxk_U_claude .opencode/skills/fxxk-u-claude
-
-# Pi project-local
-mkdir -p .pi/skills
-ln -s /path/to/Fxxk_U_claude .pi/skills/fxxk-u-claude
-```
 
 ---
 

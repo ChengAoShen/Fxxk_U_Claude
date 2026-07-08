@@ -40,7 +40,33 @@ The tool does not modify your Claude Code files and does not write directly into
 
 ---
 
-## Quick start
+## Using it from different agents
+
+**Recommended:** treat this as a universal CLI tool. Any agent that can run shell commands can call `uvx --from . fxxk-u-claude-scan` and `uvx --from . fxxk-u-claude-migrate`. This is more portable than tying the project to a Claude-style skill loader.
+
+- **Codex**: point Codex at this repository's [`AGENTS.md`](AGENTS.md), then run the CLI commands from this README.
+- **OpenCode / Pi / Claude Code**: run the CLI directly. If you still want the tool to appear in a skills list, you can install it as a compatibility skill.
+- **Other agents**: read `README.md` or `AGENTS.md` and run the CLI commands.
+
+Optional compatibility skill install:
+
+```bash
+# Claude Code
+mkdir -p ~/.claude/skills
+ln -s /path/to/Fxxk_U_claude ~/.claude/skills/fxxk-u-claude
+
+# OpenCode project-local
+mkdir -p .opencode/skills
+ln -s /path/to/Fxxk_U_claude .opencode/skills/fxxk-u-claude
+
+# Pi project-local
+mkdir -p .pi/skills
+ln -s /path/to/Fxxk_U_claude .pi/skills/fxxk-u-claude
+```
+
+---
+
+## Manual usage (CLI)
 
 **Recommended:** run it with `uvx`. This automatically installs PyYAML for better YAML frontmatter parsing. Direct `python3 scripts/...` commands remain supported and fall back to the built-in lightweight parser when PyYAML is unavailable.
 
@@ -97,32 +123,6 @@ History can contain credentials, tokens, internal URLs, and anything you pasted 
 - Symlinks are skipped to avoid leaking unrelated local files.
 - Output paths are validated so profiles cannot write outside `--out`.
 - Ambiguous settings / hooks / permissions go to `MANUAL_REVIEW.md` instead of being guessed.
-
----
-
-## Using it from different agents
-
-**Recommended:** treat this as a universal CLI tool. Any agent that can run shell commands can call `uvx --from . fxxk-u-claude-scan` and `uvx --from . fxxk-u-claude-migrate`. This is more portable than tying the project to a Claude-style skill loader.
-
-- **Codex**: point Codex at this repository's [`AGENTS.md`](AGENTS.md), then run the CLI commands from this README.
-- **OpenCode / Pi / Claude Code**: run the CLI directly. If you still want the tool to appear in a skills list, you can install it as a compatibility skill.
-- **Other agents**: read `README.md` or `AGENTS.md` and run the CLI commands.
-
-Optional compatibility skill install:
-
-```bash
-# Claude Code
-mkdir -p ~/.claude/skills
-ln -s /path/to/Fxxk_U_claude ~/.claude/skills/fxxk-u-claude
-
-# OpenCode project-local
-mkdir -p .opencode/skills
-ln -s /path/to/Fxxk_U_claude .opencode/skills/fxxk-u-claude
-
-# Pi project-local
-mkdir -p .pi/skills
-ln -s /path/to/Fxxk_U_claude .pi/skills/fxxk-u-claude
-```
 
 ---
 
