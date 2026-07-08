@@ -1,0 +1,26 @@
+[project]
+name = "fxxk-u-claude"
+version = "0.1.0"
+description = "Migrate Claude Code instructions, skills, commands, memory, and optional history to other coding agents."
+readme = "README.md"
+requires-python = ">=3.8"
+license = "MIT"
+authors = [{ name = "Fxxk_U_claude contributors" }]
+keywords = ["claude-code", "codex", "opencode", "pi", "agent", "migration"]
+dependencies = ["PyYAML>=6.0"]
+
+[project.scripts]
+fxxk-u-claude-scan = "fxxk_u_claude.scan:main"
+fxxk-u-claude-migrate = "fxxk_u_claude.migrate:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+packages = ["fxxk_u_claude"]
+include-package-data = true
+
+[tool.setuptools.package-data]
+fxxk_u_claude = ["target_profiles.yaml"]
+
+[tool.ruff]
+target-version = "py38"
+line-length = 120

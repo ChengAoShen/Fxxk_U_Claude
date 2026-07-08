@@ -1,0 +1,105 @@
+# Target profiles for Fxxk_U_claude.
+#
+# WHY THIS FILE EXISTS SEPARATELY FROM THE SCRIPTS:
+# Codex CLI, OpenCode, and similar tools change their config file layout
+# fairly often, and this skill's author (an LLM, in a session that ended on
+# a specific date) cannot re-verify these paths every time it runs. Keeping
+# the mapping here means a stale assumption is a one-file edit, not a script
+# rewrite -- and the SKILL.md instructs whoever runs this to sanity-check the
+# profile against the target tool's current docs before trusting it, and to
+# update this file (not hardcode a fix in scripts/) when something's wrong.
+#
+# FORMAT NOTE: this file is parsed by a real YAML parser when PyYAML is
+# installed, and by a tiny dependency-free fallback (scripts/_yamlite.py) when
+# it isn't -- the fallback only understands two-level "profile: {scalar
+# fields, one list field}" structure with each list item on ONE physical
+# line. Keep every "notes" entry a single line (however long) rather than
+# wrapping it YAML-style across multiple lines, or the fallback parser will
+# silently truncate it.
+#
+# Each profile describes, for one destination tool, how the scanned IR should
+# be laid out as files. Fields:
+#   instructions_file   - path (relative to output dir) for the consolidated
+#                          CLAUDE.md + skills + commands + memory context.
+#   skills_mode         - "flatten" (folded into instructions_file as sections)
+#                          or "directory" (one file per skill under skills_dir)
+#   skills_dir          - used only when skills_mode == directory
+#   skills_file_pattern - optional path template for directory-mode skills; use
+#                          {slug} for the generated safe name. Use this when a
+#                          target expects <name>/SKILL.md instead of <name>.md.
+#   commands_mode       - same two options as skills_mode
+#   commands_dir        - used only when commands_mode == directory
+#   commands_file_pattern - optional path template for directory-mode commands.
+#   memory_mode         - almost always "flatten": most agent CLIs have no
+#                          native concept of Claude Code's typed memory system,
+#                          so it becomes a labeled section in instructions_file
+#   history_mode        - "transcript" (readable Markdown, one file per
+#                          session, no tool-call replay fidelity -- always
+#                          works, works everywhere) or "native_pi" (best-effort
+#                          reproduction of Pi's own documented session JSONL
+#                          schema, so `pi --session <file>` can potentially
+#                          load it directly). Only use native_* for a target
+#                          whose session format is fully documented -- do not
+#                          guess at an undocumented internal format (see the
+#                          codex note below for why).
+#   history_dir         - path (relative to output dir) sessions get written under
+#   notes               - caveats shown to the user in the manifest (one line each)
+
+codex:
+  display_name: "Codex CLI (OpenAI)"
+  instructions_file: "AGENTS.md"
+  skills_mode: flatten
+  commands_mode: flatten
+  memory_mode: flatten
+  history_mode: transcript
+  history_dir: "history"
+  notes:
+    - "Codex CLI reads an AGENTS.md file from the project root (and merges ones found in parent directories / a global one under ~/.codex/) -- verify this is still current in Codex's docs before relying on it, config file conventions for these tools move fast."
+    - "Codex has no native Claude-style skill or slash-command import format in this profile, so skills and commands are flattened into AGENTS.md as titled sections rather than kept as separate invocable units. If Codex documents a stable native mechanism, switch skills_mode/commands_mode to directory and update this profile."
+    - "Model/sandbox/approval settings live in ~/.codex/config.toml, which has no direct equivalent to Claude Code's permissions/hooks -- treat those as manual-review items, don't try to auto-convert them. Codex also has generated memories under ~/.codex/memories/ when enabled, but this profile still flattens Claude memory into AGENTS.md for reviewable portability rather than writing generated state."
+    - "Codex stores its own sessions as rollout-*.jsonl under ~/.codex/sessions/YYYY/MM/DD/, using an internal, auto-generated, evolving schema (RolloutLine/RolloutItem wrapping SessionMeta/ResponseItem/EventMsg) that isn't stable public API -- faking that format risks producing a file Codex can't actually load. So history_mode is 'transcript' here: a readable Markdown file per session under history_dir, meant to be read as background, not resumed as a live session. If Codex ever documents a stable import format, upgrade this to a native_* mode."
+
+opencode:
+  display_name: "OpenCode"
+  instructions_file: "AGENTS.md"
+  skills_mode: directory
+  skills_dir: ".opencode/skills"
+  skills_file_pattern: ".opencode/skills/{slug}/SKILL.md"
+  commands_mode: directory
+  commands_dir: ".opencode/commands"
+  commands_file_pattern: ".opencode/commands/{slug}.md"
+  memory_mode: flatten
+  history_mode: transcript
+  history_dir: "history"
+  notes:
+    - "OpenCode uses AGENTS.md for project instructions. Current docs place skills at .opencode/skills/<name>/SKILL.md and commands at .opencode/commands/<name>.md, so this profile keeps them as separate files instead of flattening them. Re-verify against OpenCode's current docs before release; these conventions have changed before."
+    - "Frontmatter field names may not match 1:1 (e.g. Claude Code's 'description' vs whatever OpenCode expects) -- the generated files keep Claude Code's original frontmatter visible in an HTML comment above OpenCode's expected fields so nothing is silently lost, and the manifest flags these files for a quick manual check."
+    - "OpenCode stores sessions as JSON under an OPENCODE_DATA_DIR (default ~/.local/share/opencode/storage/{message,session}/...), one file per message rather than one file per session, and the exact message schema wasn't confidently verifiable at profile-authoring time -- so history_mode is 'transcript' (readable Markdown per session) rather than attempting to write into that storage layout directly. Upgrade this once the message JSON schema is confirmed against OpenCode's current source."
+
+pi:
+  display_name: "Pi (earendil-works/pi coding agent)"
+  instructions_file: "AGENTS.md"
+  skills_mode: directory
+  skills_dir: ".pi/skills"
+  skills_file_pattern: ".pi/skills/{slug}/SKILL.md"
+  commands_mode: flatten
+  memory_mode: flatten
+  history_mode: native_pi
+  history_dir: "pi-sessions"
+  notes:
+    - "Pi uses the same conventions as Claude Code almost exactly: an AGENTS.md instructions file (global ~/.pi/agent/AGENTS.md + project files, all concatenated) and skills as directories containing SKILL.md following the same 'Agent Skills' standard -- so skills_mode is directory and the SKILL.md files barely need translating. Still worth a diff against a real Pi skill to confirm nothing Pi-specific is expected in frontmatter."
+    - "Pi doesn't appear to have a separate named 'slash command' mechanism distinct from skills (invoked via /skill:name) as of this profile's last check -- commands are flattened into AGENTS.md. If Pi has since added a distinct commands directory, switch commands_mode to directory."
+    - "Pi's session format is openly documented (docs/session-format.md in the pi-mono repo): JSONL, one header line (type: session, id, timestamp, cwd) then entries with id/parentId/timestamp forming a tree, e.g. {type: message, message: {role, content, ...}}. Claude Code's own transcript format (uuid/parentUuid chain, role, content blocks) is structurally close enough that history_mode is 'native_pi' -- migrate.py writes real Pi-shaped JSONL, not just a Markdown summary. This has NOT been round-tripped through an actual Pi install, only checked against the published schema -- verify a sample file loads before trusting it for anything more than a starting point."
+    - "Pi's real session directory is ~/.pi/agent/sessions/<cwd-based-dir>/ -- this tool writes into history_dir inside the review bundle instead of directly into ~/.pi, so a human copies the reviewed files over deliberately rather than an automated write into a live tool's data directory."
+
+generic:
+  display_name: "Generic / any tool"
+  instructions_file: "AGENT_CONTEXT.md"
+  skills_mode: flatten
+  commands_mode: flatten
+  memory_mode: flatten
+  history_mode: transcript
+  history_dir: "history"
+  notes:
+    - "Use this when the target tool isn't in this file, or you just want one portable Markdown file to paste as a system prompt or drop into whatever context mechanism the target supports."
+    - "This profile makes no assumptions about file layout at all -- it's the safe fallback and always works, at the cost of losing per-skill / per-command modularity."
